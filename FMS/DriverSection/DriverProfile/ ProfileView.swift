@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ProfileView: View {
+struct FleetProfileView: View {
     @State private var isEditing = false
     @State private var name = "John Anderson"
     @State private var email = "john.anderson@company.com" // Read-only
@@ -143,7 +143,7 @@ struct SectionCard<Content: View>: View {
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            ProfileView()
+            FleetProfileView()
         }
     }
 }

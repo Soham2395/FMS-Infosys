@@ -22,7 +22,7 @@ struct MainTabView: View {
                     Text("Navigation")
                 }
             
-            ProfileView() // ✅ Replacing Text with ProfileView
+            FleetProfileView() // ✅ Replacing Text with ProfileView
                 .tabItem {
                     Image(systemName: "person.fill")
                     Text("Profile")

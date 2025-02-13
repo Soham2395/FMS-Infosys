@@ -54,7 +54,9 @@ struct DashboardView: View {
                         .padding(.horizontal)
                     
                     HStack(spacing: 12) {
-                        ActionButton(icon: "map", title: "Create Trip", color: .blue)
+                        NavigationLink(destination: AddNewTripView()) {
+                            ActionButton(icon: "map", title: "Create Trip", color: .blue)
+                        }
                         ActionButton(icon: "truck.box.fill", title: "Add Vehicle", color: .blue)
                         NavigationLink(destination: AddUserForm()) {
                             ActionButton(icon: "person.badge.plus", title: "Add User", color: .purple)
@@ -88,7 +90,6 @@ struct DashboardView: View {
                 TripCardView()
                 
             }
-            .background(Color(.systemGray6))
             .navigationTitle("Fleet Control")
         }
     }
