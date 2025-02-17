@@ -10,13 +10,26 @@
 import SwiftUI
 
 import FirebaseFirestore
+import CoreLocation
 
 struct AlertMessage: Identifiable {
     let id = UUID()
     let message: String
 }
 
-
+class LocationService {
+    private let geocoder = CLGeocoder()
+    
+    func getCoordinates(for address: String, completion: @escaping (CLLocationCoordinate2D?) -> Void) {
+        geocoder.geocodeAddressString(address) { placemarks, error in
+            guard let location = placemarks?.first?.location else {
+                completion(nil)
+                return
+            }
+            completion(location.coordinate)
+        }
+    }
+}
 
 class FirestoreService {
     private let db = Firestore.firestore()
@@ -53,14 +66,24 @@ struct AddNewTripView: View {
     
     let firestoreService = FirestoreService()
     
+    @StateObject private var fromLocationVM = LocationSearchViewModel()
+    @StateObject private var toLocationVM = LocationSearchViewModel()
+    
     var body: some View {
         NavigationView {
             VStack {
                 Form {
                     Section {
-                        TextField("Enter pickup location", text: $fromLocation)
-                        TextField("Enter destination", text: $toLocation)
+//                        TextField("Enter pickup location", text: $fromLocation)
+                        Text("Pickup Location")
+                            .font(.headline)
+                        LocationInputField(text: $fromLocation, searchViewModel: fromLocationVM, placeholder: "Enter pickup location")
+//                        TextField("Enter destination", text: $toLocation)
+                        Text("Destination")
+                            .font(.headline)
+                        LocationInputField(text: $toLocation, searchViewModel: toLocationVM, placeholder: "Enter destination")
                     }
+                    
                     
                     Section {
                         Picker(selection: $selectedGeoArea, label: Text(selectedGeoArea)) {
@@ -99,36 +122,91 @@ struct AddNewTripView: View {
         }
     }
     
+    
+//    private func createTrip() {
+//        guard !fromLocation.isEmpty, !toLocation.isEmpty, selectedGeoArea != "Select Area" else {
+//            alertMessage = AlertMessage(message: "Please fill all fields correctly.")
+//
+//            return
+//        }
+//        
+//        isLoading = true
+//        
+//        let newTrip = Trip(
+//            tripDate: deliveryDate,
+//            startLocation: fromLocation,
+//            endLocation: toLocation,
+//            distance: 0.0,  // Distance calculation can be added later
+//            estimatedTime: 0.0,
+//            assignedDriver: nil, // You may allow selecting a driver
+//            TripStatus: .scheduled
+//        )
+//        
+//        firestoreService.addTrip(trip: newTrip) { result in
+//            isLoading = false
+//            switch result {
+//            case .success:
+//                print("Trip added successfully!")
+//            case .failure(let error):
+//                alertMessage = AlertMessage(message: error.localizedDescription)
+//
+//            }
+//        }
+//    }
+    
     private func createTrip() {
         guard !fromLocation.isEmpty, !toLocation.isEmpty, selectedGeoArea != "Select Area" else {
             alertMessage = AlertMessage(message: "Please fill all fields correctly.")
-
             return
         }
-        
+
         isLoading = true
         
-        let newTrip = Trip(
-            tripDate: deliveryDate,
-            startLocation: fromLocation,
-            endLocation: toLocation,
-            distance: 0.0,  // Distance calculation can be added later
-            estimatedTime: 0.0,
-            assignedDriver: nil, // You may allow selecting a driver
-            TripStatus: .scheduled
-        )
+        let locationService = LocationService()
         
-        firestoreService.addTrip(trip: newTrip) { result in
-            isLoading = false
-            switch result {
-            case .success:
-                print("Trip added successfully!")
-            case .failure(let error):
-                alertMessage = AlertMessage(message: error.localizedDescription)
-
+        locationService.getCoordinates(for: fromLocation) { fromCoord in
+            guard let fromCoord = fromCoord else {
+                alertMessage = AlertMessage(message: "Invalid pickup location")
+                isLoading = false
+                return
+            }
+            
+            locationService.getCoordinates(for: toLocation) { toCoord in
+                guard let toCoord = toCoord else {
+                    alertMessage = AlertMessage(message: "Invalid destination")
+                    isLoading = false
+                    return
+                }
+                
+                let fromLocation = CLLocation(latitude: fromCoord.latitude, longitude: fromCoord.longitude)
+                let toLocation = CLLocation(latitude: toCoord.latitude, longitude: toCoord.longitude)
+                
+                let distanceInMeters = fromLocation.distance(from: toLocation) // Distance in meters
+                let distanceInKm = distanceInMeters / 1000.0  // Convert to KM
+                
+                let newTrip = Trip(
+                    tripDate: deliveryDate,
+                    startLocation: self.fromLocation,
+                    endLocation: self.toLocation,
+                    distance: Float(distanceInKm),
+                    estimatedTime: 0.0, // You can later calculate estimated time
+                    assignedDriver: nil,
+                    TripStatus: .scheduled
+                )
+                
+                firestoreService.addTrip(trip: newTrip) { result in
+                    isLoading = false
+                    switch result {
+                    case .success:
+                        print("Trip added successfully!")
+                    case .failure(let error):
+                        alertMessage = AlertMessage(message: error.localizedDescription)
+                    }
+                }
             }
         }
     }
+
 }
 
 
