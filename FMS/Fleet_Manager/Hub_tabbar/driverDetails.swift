@@ -170,15 +170,15 @@ struct AddDriverView: View {
        }
     var body: some View {
         Form {
-            Button(action: {
-                print("user id in driver details : \(String(describing: user.id)) \(String(describing: licenseimage))")
-            }) {
-                Text("Fetch License Image")
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
+//            Button(action: {
+//                print("user id in driver details : \(String(describing: user.id)) \(String(describing: licenseimage))")
+//            }) {
+//                Text("Fetch License Image")
+//                    .padding()
+//                    .background(Color.blue)
+//                    .foregroundColor(.white)
+//                    .cornerRadius(10)
+//            }
 
             Section(header: Text("Name")) {
                 TextField("Enter Name", text: $name)
