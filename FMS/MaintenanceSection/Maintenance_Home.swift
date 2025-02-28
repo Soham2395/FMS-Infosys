@@ -73,13 +73,13 @@ struct MaintenanceHomeView: View {
                     .cornerRadius(10)
                     
                    
-                    Picker("Maintenance Status", selection: $maintenanceStatusFilter) {
-                        ForEach(MaintenanceStatus.allCases, id: \.self) { status in
-                            Text(status.rawValue).tag(status as MaintenanceStatus?)
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding(.horizontal)
+//                    Picker("Maintenance Status", selection: $maintenanceStatusFilter) {
+//                        ForEach(MaintenanceStatus.allCases, id: \.self) { status in
+//                            Text(status.rawValue).tag(status as MaintenanceStatus?)
+//                        }
+//                    }
+//                    .pickerStyle(SegmentedPickerStyle())
+//                    .padding(.horizontal)
                     .onChange(of: maintenanceStatusFilter) { newValue in
                         fetchUserData()
                     }
@@ -103,6 +103,13 @@ struct MaintenanceHomeView: View {
                     )
                 }
                 .padding()
+                Picker("Maintenance Status", selection: $maintenanceStatusFilter) {
+                    ForEach(MaintenanceStatus.allCases, id: \.self) { status in
+                        Text(status.rawValue).tag(status as MaintenanceStatus?)
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.horizontal)
                 
                
                 

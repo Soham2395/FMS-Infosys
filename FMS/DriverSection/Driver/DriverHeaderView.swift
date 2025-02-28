@@ -42,6 +42,7 @@ struct DriverHeaderView: View {
             }
             .frame(width : 350)
             .padding()
+            .padding(.top,8)
             .background(Color.white)
             .cornerRadius(10)
             .shadow(color: .gray.opacity(0.2), radius: 5, x: 0, y: 2)
